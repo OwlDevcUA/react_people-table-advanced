@@ -67,9 +67,15 @@ export const PeopleFilters = () => {
             {'16,17,18,19,20'.split(',').map(number => (
               <SearchLink
                 key={number}
-                params={{ centuries: `${number}` }}
+                params={{
+                  centuries: centuries.includes(number)
+                    ? centuries.filter(c => c !== number)
+                    : [...centuries, number],
+                }}
                 data-cy="century"
-                className="button mr-1"
+                className={classNames('button mr-1', {
+                  'is-info': centuries.includes(number),
+                })} // is-info
               >
                 {number}
               </SearchLink>
@@ -77,13 +83,15 @@ export const PeopleFilters = () => {
           </div>
 
           <div className="level-right ml-4">
-            <a
+            <SearchLink
               data-cy="centuryALL"
-              className="button is-success is-outlined"
-              href="#/people"
+              className={classNames('button is-success', {
+                'is-outlined': !!centuries.length,
+              })}
+              params={{ centuries: null }}
             >
               All
-            </a>
+            </SearchLink>
           </div>
         </div>
       </div>
