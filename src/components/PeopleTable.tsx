@@ -1,11 +1,40 @@
 import { Person } from '../types';
 import { PersonData } from './PersonLink';
+import { SearchLink } from './SearchLink';
+import classNames from 'classnames';
+import { useFilters } from '../hooks/useFilters';
 
 type Props = {
   people: Person[];
 };
 
 export const PeopleTable: React.FC<Props> = ({ people }) => {
+  const { sort, order } = useFilters();
+
+  function nextParams(par: string) {
+    if (sort !== par && order === '') {
+      return { sort: par, order: null };
+    }
+
+    if (sort === par && order !== 'desc') {
+      return { sort: par, order: 'desc' };
+    }
+
+    return { sort: null, order: null };
+  }
+
+  function classSwitch(par: string) {
+    if (sort !== par) {
+      return 'fa-sort';
+    }
+
+    if (sort === par && !order) {
+      return 'fa-sort-up';
+    }
+
+    return 'fa-sort-down';
+  }
+
   return (
     <table
       data-cy="peopleTable"
@@ -16,44 +45,44 @@ export const PeopleTable: React.FC<Props> = ({ people }) => {
           <th>
             <span className="is-flex is-flex-wrap-nowrap">
               Name
-              <a href="#/people?sort=name">
+              <SearchLink params={nextParams('name')}>
                 <span className="icon">
-                  <i className="fas fa-sort" />
+                  <i className={classNames('fas', classSwitch('name'))} />
                 </span>
-              </a>
+              </SearchLink>
             </span>
           </th>
 
           <th>
             <span className="is-flex is-flex-wrap-nowrap">
               Sex
-              <a href="#/people?sort=sex">
+              <SearchLink params={nextParams('sex')}>
                 <span className="icon">
-                  <i className="fas fa-sort" />
+                  <i className={classNames('fas', classSwitch('sex'))} />
                 </span>
-              </a>
+              </SearchLink>
             </span>
           </th>
 
           <th>
             <span className="is-flex is-flex-wrap-nowrap">
               Born
-              <a href="#/people?sort=born&amp;order=desc">
+              <SearchLink params={nextParams('born')}>
                 <span className="icon">
-                  <i className="fas fa-sort-up" />
+                  <i className={classNames('fas', classSwitch('born'))} />
                 </span>
-              </a>
+              </SearchLink>
             </span>
           </th>
 
           <th>
             <span className="is-flex is-flex-wrap-nowrap">
               Died
-              <a href="#/people?sort=died">
+              <SearchLink params={nextParams('died')}>
                 <span className="icon">
-                  <i className="fas fa-sort" />
+                  <i className={classNames('fas', classSwitch('died'))} />
                 </span>
-              </a>
+              </SearchLink>
             </span>
           </th>
 

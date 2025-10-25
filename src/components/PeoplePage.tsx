@@ -1,15 +1,18 @@
 import { PeopleFilters } from './PeopleFilters';
 import { Loader } from './Loader';
 import { PeopleTable } from './PeopleTable';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { getPeople } from '../api';
 import { Person } from '../types';
+import { useFilters } from '../hooks/useFilters';
 
 export const PeoplePage = () => {
   const [people, setPeople] = useState<Person[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [loaded, setLoaded] = useState(false);
+
+  const { sex, query, centuries, sort, order } = useFilters();
 
   useEffect(() => {
     async function loadPeople() {
@@ -32,6 +35,55 @@ export const PeoplePage = () => {
     loadPeople();
   }, []);
 
+  const filtredPeople = useMemo(() => {
+    let newPeople = people;
+
+    if (sex) {
+      newPeople = newPeople.filter(person => person.sex === sex);
+    }
+
+    if (query) {
+      newPeople = newPeople.filter(person =>
+        person.name.toLowerCase().includes(query.toLocaleLowerCase()),
+      );
+    }
+
+    if (centuries.length > 0) {
+      newPeople = newPeople.filter(person =>
+        centuries.includes(String(Math.ceil(person.born / 100))),
+      );
+    }
+
+    switch (sort) {
+      case 'name':
+        newPeople = [...newPeople].sort((a, b) =>
+          order === 'desc'
+            ? b.name.localeCompare(a.name)
+            : a.name.localeCompare(b.name),
+        );
+        break;
+      case 'sex':
+        newPeople = [...newPeople].sort((a, b) =>
+          order === 'desc'
+            ? b.sex.localeCompare(a.sex)
+            : a.sex.localeCompare(b.sex),
+        );
+        break;
+      case 'born':
+        newPeople = [...newPeople].sort((a, b) =>
+          order === 'desc' ? b.born - a.born : a.born - b.born,
+        );
+        break;
+      case 'died':
+        newPeople = [...newPeople].sort((a, b) =>
+          order === 'desc' ? b.died - a.died : a.died - b.died,
+        );
+        break;
+    }
+
+    return newPeople;
+  }, [people, sex, query, centuries, sort, order]);
+
   return (
     <>
       <h1 className="title">People Page</h1>
@@ -39,7 +91,7 @@ export const PeoplePage = () => {
       <div className="block">
         <div className="columns is-desktop is-flex-direction-row-reverse">
           <div className="column is-7-tablet is-narrow-desktop">
-            <PeopleFilters />
+            {!!people.length && <PeopleFilters />}
           </div>
 
           <div className="column">
@@ -58,7 +110,7 @@ export const PeoplePage = () => {
                 </p>
               )}
 
-              {!!people.length && <PeopleTable people={people} />}
+              {!!people.length && <PeopleTable people={filtredPeople} />}
             </div>
           </div>
         </div>
