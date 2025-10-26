@@ -43,8 +43,13 @@ export const PeoplePage = () => {
     }
 
     if (query) {
-      newPeople = newPeople.filter(person =>
-        person.name.toLowerCase().includes(query.toLocaleLowerCase()),
+      newPeople = newPeople.filter(
+        person =>
+          person.name.toLowerCase().includes(query.toLocaleLowerCase()) ||
+          person.fatherName
+            ?.toLowerCase()
+            .includes(query.toLocaleLowerCase()) ||
+          person.motherName?.toLowerCase().includes(query.toLocaleLowerCase()),
       );
     }
 
