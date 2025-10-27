@@ -1,5 +1,5 @@
 import { Person } from '../types';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import classNames from 'classnames';
 
 type Props = {
@@ -9,6 +9,7 @@ type Props = {
 
 export const PersonData: React.FC<Props> = ({ person, people }) => {
   const { slug } = useParams();
+  const location = useLocation();
 
   function getPersonByName(name: string) {
     const perent = people.find(perentName => perentName.name === name);
@@ -23,7 +24,10 @@ export const PersonData: React.FC<Props> = ({ person, people }) => {
     >
       <td>
         <Link
-          to={`/people/${person.slug}`}
+          to={{
+            pathname: `/people/${person.slug}`,
+            search: location.search,
+          }}
           className={classNames({ 'has-text-danger': person.sex === 'f' })}
         >
           {person.name}
@@ -36,7 +40,10 @@ export const PersonData: React.FC<Props> = ({ person, people }) => {
       <td>
         {person.motherName && getPersonByName(person.motherName)?.slug ? (
           <Link
-            to={`/people/${getPersonByName(person.motherName)?.slug}`}
+            to={{
+              pathname: `/people/${getPersonByName(person.motherName)?.slug}`,
+              search: location.search,
+            }}
             className="has-text-danger"
           >
             {person.motherName}
@@ -49,7 +56,12 @@ export const PersonData: React.FC<Props> = ({ person, people }) => {
       </td>
       <td>
         {person.fatherName && getPersonByName(person.fatherName)?.slug ? (
-          <Link to={`/people/${getPersonByName(person.fatherName)?.slug}`}>
+          <Link
+            to={{
+              pathname: `/people/${getPersonByName(person.fatherName)?.slug}`,
+              search: location.search,
+            }}
+          >
             {person.fatherName}
           </Link>
         ) : person.fatherName ? (
